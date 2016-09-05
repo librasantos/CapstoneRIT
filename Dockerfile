@@ -19,6 +19,9 @@ RUN apt-get install -y php5-mysql; \
     cp /etc/php5/mods-available/pdo_mysql.ini /usr/local/etc/php/conf.d/; \
     echo "extension_dir=/usr/lib/php5/20131226/" >> /usr/local/etc/php/php.ini;
 
+# Install a build-tool that will allow to compress and build js and css files
+RUN npm install -g gulp-cli;
+
 # Habilita el modo rewrite en apache.
 RUN cp /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/;
 
