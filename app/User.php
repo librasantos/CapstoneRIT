@@ -33,4 +33,14 @@ class User extends Authenticatable
         return $this->belongsToMany(Group::class, 'user_groups');
     }
 
+    public function incomingMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+
+    public function outgoingMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
 }

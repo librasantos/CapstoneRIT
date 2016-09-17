@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\User;
 use App\Group;
+use Illuminate\Support\Facades\Auth;
 
 class EndUserController extends Controller
 {
@@ -14,7 +15,8 @@ class EndUserController extends Controller
     public function index()
     {
       $contacts = [];
-      $user = User::with('groups')->first();
+//      $user = User::with('groups')->first();
+      $user = Auth::user()->load('groups.users');
 
       $groups = $user->groups;
       foreach($groups as $group){
