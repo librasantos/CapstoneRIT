@@ -22,11 +22,31 @@ RUN apt-get install -y php5-mysql; \
 # Install a build-tool that will allow to compress and build js and css files
 RUN npm install -g gulp-cli;
 
+COPY $PWD/ /var/www/html/
+
+WORKDIR /var/www/html
+
+RUN apt-get install -y sudo;
+
+RUN useradd -u 1000 -g www-data user; \
+    echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers; \
+    mkdir /home/user; \
+    chown -R user:www-data /home/user;
+
+# The user will be 1000, the first non-root user of the system
+RUN echo $PWD; chown -R 1000:www-data .; \
+    # All new files will have the inherite the group id (www-data)
+    chmod g+s ./; \
+    # All files belong to 1000 (first user in linux systems) and to group www-data
+    chmod -R 750 ./; \
+    chmod -R g+rwx bootstrap/cache storage;
+
 # Habilita el modo rewrite en apache.
-RUN cp /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/;
+RUN sudo cp /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/;
+
+USER user
 
 # Habilta el comando 'clear' en el terminal
 RUN echo "export TERM=xterm;" >> ~/.bashrc;
 
-WORKDIR /var/www/html
-
+CMD sudo apache2-foreground
