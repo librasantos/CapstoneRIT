@@ -1,7 +1,7 @@
-@extends('layout')
+@extends('layouts.app')
 
 
-@section('body')
+@section('content')
 
   <h3>Admin Page</h3>
 

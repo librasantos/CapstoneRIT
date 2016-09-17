@@ -1,5 +1,6 @@
 version: "2"
 services:
+
   code:
     image: friofrio_php
     build: .
@@ -7,8 +8,8 @@ services:
       - 80:80
       - 8080:8080
     volumes:
-      - ./:/var/www/html
-      - ./.conf/vhost.conf:/etc/apache2/sites-available/000-default.conf
+      - ./:/var/www/html:rw
+      - ./.conf/vhost.conf:/etc/apache2/sites-available/000-default.conf:rw
 
   db:
     image: mariadb

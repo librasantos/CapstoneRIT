@@ -43,3 +43,13 @@ Vue.http.interceptors.push((request, next) => {
 //     broadcaster: 'pusher',
 //     key: 'your-pusher-key'
 // });
+
+
+
+var Echo = require("laravel-echo");
+
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: '85bad62aceed48055cc5',
+    // namespace: 'App.Events',
+});
