@@ -14,8 +14,10 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         'App\Events\MessageSent' => [
-            
         ],
+        \App\Events\MessageRead::class => [
+            \App\Listeners\UpdateLastRead::class
+        ]
     ];
 
     /**

@@ -18,13 +18,31 @@ use Illuminate\Http\Request;
 //})
 //    ->middleware('auth:api');
 //;
+
 Route::group(['middleware' => ['auth:api']], function(){
 
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
 
+    Route::get('/chat/{contactId}/messages', 'MessageController@getConversationWith');
+
+    Route::post('/chat/{contactId}/messages', 'MessageController@sendTo');
+
+    Route::get('/chat/contacts', 'EndUserController@getContacts');
+
+
+
+    // ADMIN ENDPOINTS
+
+    Route::get('/users', 'AdminController@getUsers');
+
+    Route::get('/groups', 'AdminController@getGroups');
+
+    Route::get('/users/{user}/groups', 'AdminController@getUserGroups');
+
+    Route::post('/users/{user}/groups/{group}', 'AdminController@attachUserToGroup');
+    Route::delete('/users/{user}/groups/{group}', 'AdminController@detachUserFromGroup');
 });
 
-Route::get('/chat/{contactId}/messages', 'MessageController@getConversationWith');
-Route::post('/chat/{contactId}/messages', 'MessageController@sendTo');
+

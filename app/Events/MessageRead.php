@@ -10,20 +10,22 @@ use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class MessageSent implements ShouldBroadcast
+class MessageRead
 {
     use InteractsWithSockets, SerializesModels;
 
-    public $message;
-
+    public $receiverId;
+    public $senderId;
+    
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Message $m)
+    public function __construct($receiverId, $senderId)
     {
-        $this->message = $m;
+        $this->receiverId = $receiverId;
+        $this->senderId = $senderId;
     }
 
     /**
@@ -33,8 +35,6 @@ class MessageSent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return 'message.' . $this->message->receiver_id;
-//        return 'message.' . $this->receiverId;
-//        return new PrivateChannel('message.'.$this->receiverId);
+        return new PrivateChannel('channel-name');
     }
 }

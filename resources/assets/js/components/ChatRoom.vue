@@ -1,73 +1,72 @@
 <template>
+    <section>
+        <div class="panel panel-primary" v-if="contact">
 
-    <div class="panel panel-primary">
+            <section class="panel-heading">
+                {{ contact.name }}
+            </section>
 
-        <section class="panel-heading">
-            {{ user.name }}
-        </section>
+            <section class="panel-body">
+                <!-- if messages.length -->
+                <div v-if="messages.length"
+                     class="sent-message alert alert-info"
+                     v-for="m in messages"
+                     v-bind:class="{'sender-message' : m.sender_id == contact.id, 'receiver-message': m.receiver_id == contact.id }">
+                    {{ m.message }}
+                </div>
+                <!-- else ! messages.length -->
+                <div class="alert alert-info"
+                     v-if="! messages.length" >
+                    No messages sent between you two.
+                </div>
+            </section>
 
-        <section class="panel-body">
+            <form class="form panel-footer" @submit.prevent="submit">
+                <textarea
+                   name="message" id="message" v-model="messageInput"
+                   cols="30" rows="2"
+                   class="form-control"
+                   placeholder="Type your message and hit enter." >
 
+                </textarea>
+                <button class="btn btn-info col-md-1">Send</button>
+            </form>
 
-            <div class="sent-message sender-message alert alert-info"
-                 v-for="m in messages"
-                 v-bind.class="{'sender-message' : m.id !== user.id, 'receiver-message': m.id === user.id }">
-                {{ m.message }}
+        </div>
 
-            </div>
-            <div class="alert alert-info"
-                 v-if="! messages.length" >
-                No messages sent between you two.
-            </div>
-            <!--<div class="sent-message sender-message alert alert-info">-->
-                <!--Accusantium alias aspernatur at blanditiis corporis eaque ipsum, minima modi-->
-                <!--mollitia neque officia quaerat quo quod recusandae unde vel voluptatem voluptatum? Et.-->
-            <!--</div>-->
-
-            <!--<div class="sent-message receiver-message alert alert-info">-->
-                <!--Lorem ipsum dolor sit amet, consectetur adipisicing elit.-->
-            <!--</div>-->
-
-
-
-        </section>
-
-        <form class="form panel-footer" @submit.prevent="submit">
-              <textarea
-                      name="message" id="message"
-                      cols="30" rows="2"
-                      class="form-control"
-                      placeholder="Type your message and hit enter.">
-
-              </textarea>
-            <button class="btn btn-info col-md-1">Send</button>
-        </form>
-
-    </div>
+        <div v-if="! contact" class="alert alert-default">
+            No contact selected.
+        </div>
+    </section>
 
 </template>
 
 <script type="text/javascript">
-    export default {
-        props: ['messages'],
-        ready() {
-            console.log('Component ready.');
-        },
 
+    import { chatService } from './ChatService';
+
+    export default {
+        props: ['messages', 'contact'],
+        created () {
+          console.log(this.contact);
+        },
         data () {
 
             return {
-                user: {
-                    name: 'Junior Zapata',
-                    id: 1
-                },
-//                messages: []
+                messageInput: '',
             }
         },
 
         methods: {
-            submit(e) {
-                e.preventDefault();
+            submit() {
+                console.log('Will send this message: '+ this.messageInput);
+                chatService.sendMessage(this.contact.id, this.messageInput)
+                    .then((resp) => {
+                        this.messages.push(resp.data)
+                        this.messageInput = '';
+                        console.log('Message sent.');
+                    });
+
             }
         }
 

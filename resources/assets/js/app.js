@@ -1,4 +1,6 @@
 
+
+
 /**
  * First we will load all of this project's JavaScript dependencies which
  * include Vue and Vue Resource. This gives a great starting point for
@@ -15,48 +17,77 @@ require('./bootstrap');
 
 Vue.config.debug = true;
 
-// Vue.component('example', require('./components/Example.vue'));
+import { chatService } from './components/ChatService';
+
 Vue.component('chat-room', require('./components/ChatRoom.vue'));
+Vue.component('contact-list', require('./components/ContactList.vue'));
 
 const app = new Vue({
     created: function(){
-        Echo.channel('message.*')
-            .listen('.App.Events.MessageSent', (message) => {
-                console.log('MessageSent: ' , message);
-            });
+
+        chatService.getContacts().then( function(resp) {
+
+            this.contactList = resp.data;
+
+            for(var i in this.contactList) {
+                this.contactList[i].messageCount = this.contactList[i].messagesCount ? this.contactList[i].messagesCount : 0;
+            }
+            Echo.channel('message.' + window.UserId)
+                .listen('.App.Events.MessageSent', function(data){
+                    this.newMessage(data.message);
+                }.bind(this));
+
+        }.bind(this));
+
     },
     data: function (){
         return {
             title: 'Some App Title',
-            chatMessages: []
+            chatMessages: [],
+            contactList: [],
+            selectedContact: null,
         };
     },
     methods: {
         chatWith : function (contact) {
-            this.$http.get('/api/chat/'+ contact.id+'/messages')
-                .then(function(data){
-                    console.log(data.body);
-                    this.chatMessages = data.body;
-                });
+            chatService.getMessages(contact.id)
+                .then(function(resp){
+
+                    this.chatMessages = resp.body;
+
+                }.bind(this));
+            this.selectedContact = contact;
+        },
+        newMessage: function(message) {
+            var contact = this.getContactFromList(message.sender_id);
+            if(this.selectedContact && this.selectedContact.id === message.sender_id) {
+                //Add the message to the last in the chat room
+                this.chatMessages.push(message);
+            } else {
+                // Increase the badge counter in the contactList
+                contact.messagesCount++;
+                // console.log('Now: ' , contact.messagesCount);
+            }
+            // console.log('I am '+ contact.id +'; MessageSent: ' , message);
+
+            this.scroll();
+        },
+
+        scroll: function(){
+            var el = document.querySelector('#app .panel-body')[0];
+            el.scrollTop(el.scrollHeight);
+        },
+        getContactFromList: function(id){
+            for(var i in this.contactList){
+                if (this.contactList[i].id == id){
+                    return this.contactList[i];
+                }
+            }
+        },
+        ready: function() {
+            console.log('Readyy.')
         }
+
     }
 }).$mount('#app');
 
-// console.log('Will listen for events in message channels')
-
-// Echo.channel('message.*')
-//     .listen('.App.Events.MessageSent', (message) => {
-//     console.log('MessageSent: ' + message.content);
-// });
-
-
-// Echo.channel('message.1')
-//     .listen('MessageSent', (message) => {
-//     console.log('MessageSent: ' + message.content);
-// });
-//
-//
-// Echo.channel('tv-shows')
-//     .listen('TvShowAdded', (message) => {
-//     console.log('TVShow: ' + message.title);
-// });

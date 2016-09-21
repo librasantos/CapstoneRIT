@@ -5769,11 +5769,15 @@ button.close {
 #app {
   z-index: 1000; }
   #app .panel {
-    padding: 0;
-    max-height: 250px; }
+    padding: 0; }
   #app .panel-heading {
     font-size: 2rem;
     font-weight: bold; }
+  #app .panel-body {
+    padding-bottom: 0;
+    overflow-y: scroll;
+    min-height: 200px;
+    max-height: 400px; }
   #app .panel-footer {
     position: relative;
     background: transparent;
@@ -5793,14 +5797,12 @@ button.close {
       right: 15px;
       top: 50%;
       margin-top: -20px; }
-  #app .panel-body {
-    padding-bottom: 0; }
   #app .sent-message {
     position: relative;
     border: none;
     color: #333; }
   #app .sender-message {
-    float: left; }
+    clear: both; }
     #app .sender-message::before {
       content: '';
       display: inline-block;
@@ -5812,8 +5814,9 @@ button.close {
       border-right: 15px solid transparent;
       border-top: 15px solid skyblue; }
   #app .receiver-message {
-    float: right;
-    background-color: lightblue; }
+    clear: both;
+    background-color: #bbe7f5;
+    text-align: right; }
     #app .receiver-message::before {
       content: '';
       display: inline-block;
@@ -5824,5 +5827,12 @@ button.close {
       height: 0;
       border-left: 15px solid transparent;
       border-top: 15px solid lightskyblue; }
+
+#app.admin .panel .panel-body {
+  padding-bottom: 20px;
+  overflow-y: auto; }
+
+#app.admin .hidden {
+  visibility: hidden; }
 
 /*# sourceMappingURL=app.css.map */

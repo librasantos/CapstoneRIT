@@ -23,8 +23,10 @@ class BroadcastServiceProvider extends ServiceProvider
             return (int) $user->id === (int) $userId;
         });
 
-//        Broadcast::channel('message.*', function ($user, $userId) {
+        Broadcast::channel('message.*', function ($user, $userId) {
 //            return (int) $user->id !== (int) $userId;
-//        });
+            echo "User is authorized.<br/>";
+            return true;
+        });
     }
 }
