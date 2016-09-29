@@ -35,46 +35,32 @@ RUN useradd -u 1000 -g www-data user; \
     
 USER user
 
-# Install composer packages
-COPY $PWD/composer.json /home/user/composer_packages/
-RUN cd /home/user/composer_packages; \
-    sudo chown -R user:www-data ./; \
-    composer install --no-dev --no-scripts --no-autoloader;
-
-# Install nodejs packages
-COPY $PWD/package.json /home/user/npm_packages/
-RUN cd /home/user/npm_packages; \
-    sudo chown -R user:www-data ./; \
-    npm install --production;
-
 WORKDIR /var/www/html
+
+# Install composer packages
+COPY $PWD/composer.json ./
+RUN sudo chown -R user:www-data ./; \
+    composer install --no-dev  --no-scripts --no-autoloader;
 
 # Copy source code into image
 COPY $PWD /var/www/html
-
-# The user will be 1000, the first non-root user of the system
-RUN sudo chown -R 1000:www-data .; \
-    # All new files will have the inherite the group id (www-data)
-    sudo chmod g+s ./; \
-    # All files belong to 1000 (first user in linux systems) and to group www-data
-    sudo chmod -R 750 ./; \
-    # These laravel directories must be writable
-    sudo chmod -R g+rwx bootstrap/cache storage; \
-    # Move the vendor and nodejs directories to the app code directory
-    cp /home/user/composer_packages/vendor ./ -r; \
-    cp /home/user/npm_packages/node_modules ./ -r
+COPY $PWD/public/.htaccess /var/www/html/public
 
 # Add .conf/vhost.conf (nginx host config file) as default vhost
 RUN sudo rm /etc/apache2/sites-available/000-default.conf; \
-    sudo ln -s /var/www/html/.conf/vhost.conf /etc/apache2/sites-available/000-default.conf;
+    sudo ln -s /var/www/html/.conf/vhost.conf /etc/apache2/sites-available/000-default.conf; \
+    # Enable the 'clear' command
+    echo "export TERM=xterm;" >> ~/.bashrc; \
+    # The user will be 1000, the first non-root user of the system
+    sudo .conf/setup-fs-permissions.sh; \
+    # Autoload composer classes/namespaces
+    composer dump-autoload; 
 
-# Habilta el comando 'clear' en el terminal
-RUN echo "export TERM=xterm;" >> ~/.bashrc;
+RUN mkdir www; \
+    sudo cp -r ./public/** ./www/; \
+    sudo cp ./public/.* ./www/; \
+    sudo rm public -rf; \
+    mv www public;
 
-CMD if [ ! -e "vendor" ]; then \
-        composer install; \
-    fi; \
-    if [ ! -e "node_modules" ]; then \
-        npm install; \
-    fi; \
+CMD sudo .conf/setup-fs-permissions.sh; \
     sudo apache2-foreground
