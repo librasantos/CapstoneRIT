@@ -45,4 +45,7 @@ Route::group(['middleware' => ['auth:api']], function(){
     Route::delete('/users/{user}/groups/{group}', 'AdminController@detachUserFromGroup');
 });
 
+Route::get('/environment/{varname}', function($varname) {
+    return env(strtoupper($varname), 'some-value');
+});
 
